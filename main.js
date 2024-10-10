@@ -1,4 +1,4 @@
-const palavras =["brasil", "eua", "india", "china", "filipinas", "japao", "australia", "franca", "alemanha", ""]
+const palavras =["brasil", "eua", "india", "china", "filipinas", "japao", "australia", "franca", "alemanha", "bugaria", "belgica", "canada", "finlandia", "uruguai", "paraguai", "EAU", "bulgaria", "afeganistao", "paquistao"]
 let tentativasUsadas= 0;
 let botoes= document.getElementById('botoes');
 let letras = ['A','B','C','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
@@ -9,7 +9,7 @@ iniciarJogo();
 function iniciarJogo() {
     botoes.innerHTML = '';
     letras.forEach((value, index) => {
-        botoes.innerHTML += `<button id='btn-${value}' class='btn btn-light me-1 mb-1' onclick='checarLetra("${value}")'>${value}</button>`;
+        botoes.innerHTML += `<button id='btn-${value}' class='btn btn-outline-dark me-1 mb-1' onclick='checarLetra("${value}")'>${value}</button>`;
     });
 
     jogando = true;
@@ -24,9 +24,58 @@ function iniciarJogo() {
     desenharForca(0)
 }
 
+function checarLetra(letra) {
+    if (!jogando) return;
+    let btn = document.getElementById('btn-'+letra);
+    let achou = false;
+    for (let i = 0; i < palavraSecreta.length; i++) {
+        if(palavraSecreta[i] == letra.toLowerCase()) {
+            achou = true;
+           palavraOculta = trocaLetra(palavraOculta, letra, i);
+        }
+    }
+    btn.classList.remove('btn-outline-dark');
+    btn.classList.add(achou ? 'btn-primary' : 'btn-danger');
+    document.querySelector('h2').innerHTML = palavraOculta;
+    if (!achou) {
+        tentativasUsadas++;
+        desenharForca(tentativasUsadas);
+    }
+    checarJogo();
+}
+
+function checarJogo() {
+    if (tentativasUsadas == 6) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oooops...',
+            text: 'Você perdeu!!!!!'
+        });
+        jogando = false;
+        document.getElementById('btnReiniciar').classList.remove('d-none');
+        }
+
+let listaTexto = palavraOculta.split(" ");
+let novaPalavra = listaTexto.join("");
+if (palavraSecreta == novaPalavra.toLowerCase()) {
+    Swal.fire({
+        icon: 'success',
+        title: 'Aeeeeeeee', 
+        text: 'Você ganhouuu!!'
+    })
+    jogando = false;
+    document.getElementById('btnReiniciar').classList.remove('d-none');
+}
+}
 
 
-function desenharForca(tentativasUsadas){
+function trocaLetra(textoOriginal, letra, posicao) {
+    let listaTexto = textoOriginal.split(" ");
+    listaTexto[posicao] = letra;
+    return listaTexto.join(" ");
+}
+
+function desenharForca(tentativasErradas){
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -47,5 +96,74 @@ function desenharForca(tentativasUsadas){
     ctx.lineTo(60, 20)
     ctx.stroke();
 
+    // Trava horizontal
+    ctx.beginPath();
+    ctx.strokeStyle = "#4e2708";
+    ctx.moveTo(60, 20);
+    ctx.lineTo(120, 20)
+    ctx.stroke();
+    
+    // Corda
+    ctx.beginPath();
+    ctx.strokeStyle = "#4e2708";
+    ctx.moveTo(120, 20);
+    ctx.lineTo(120, 30)
+    ctx.stroke();
+    
+    // Viga horizontal
+    ctx.beginPath();
+    ctx.strokeStyle = "#4e2708";
+    ctx.moveTo(80, 20);
+    ctx.lineTo(60, 40)
+    ctx.stroke();
 
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 2;
+
+    // Cabeça
+    if (tentativasErradas >= 1) {
+        ctx.beginPath();
+        ctx.arc(120, 45, 15, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    //Corpo
+    if (tentativasErradas >= 2) {
+        ctx.beginPath();
+        ctx.moveTo(120, 60);
+        ctx.lineTo(120, 120);
+        ctx.stroke();
+    }
+
+    //Braço esquerdo
+    if (tentativasErradas >= 3) {
+        ctx.beginPath();
+        ctx.moveTo(120, 70);
+        ctx.lineTo(100, 100);
+        ctx.stroke();
+    }
+
+    //Braço direito
+    if (tentativasErradas >= 4) {
+        ctx.beginPath();
+        ctx.moveTo(120, 70);
+        ctx.lineTo(140, 100);
+        ctx.stroke();
+    }
+
+    //Braço esquerda
+    if (tentativasErradas >= 5) {
+        ctx.beginPath();
+        ctx.moveTo(120, 120);
+        ctx.lineTo(100, 160);
+        ctx.stroke();
+    }
+
+    //Braço direito
+    if (tentativasErradas >= 6) {
+        ctx.beginPath();
+        ctx.moveTo(120, 120);
+        ctx.lineTo(140, 160);
+        ctx.stroke();
+    }
 }
